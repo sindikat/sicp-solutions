@@ -1,0 +1,91 @@
+This is the summary of SICP
+
+* Building abstractions with procedures
+
+- Computational process :: abstract beings that inhabit computers
+- data :: other abstract beings upon which processes manipulate
+- program :: pattern of rules for evolution of the process
+- programming language :: contains symbolic expressions that prescribe the tasks that processes perform
+
+** The elements of programming
+
+Every programming language serve as a framework within which one forms complex ideas about processes from simple ideas. There are 3 mechanisms to accomplish that:
+
+- primitive expressions :: simplest entities
+- means of combination :: by which compound elements are built from simpler ones
+- means of abstraction :: by which compound elements are named and manipulated as units
+
+In programming we deal with 2 kinds of elements: data and procedures.
+
+- data :: values which we manipulate
+- procedure :: descriptions of rules for manipulating the data
+
+Data and procedures actually are not so distinct.
+
+*** Expressions
+
+- combination :: expression formed by list of expressions in parentheses for denoting procedure application
+- operator :: left-most element in the list
+- operands :: remaining elements in the list
+- procedure :: the value of operator
+- arguments :: values of operands
+
+Value of combination is got by applying the procedure specified by the operator over the arguments.
+
+- Prefix notation :: convention of placing operator before operands
+- nestedness :: ability of a combination having elements that are themselves combinations
+
+*** Naming and the environment
+
+- variable :: identified by name
+- value :: the computational object behind the variable
+
+Example of variable definition
+#+BEGIN_SRC scheme
+(define size 2)
+#+END_SRC
+
+From now on we can refer to the value 2 by the name =size=.
+
+- environment :: memory that keeps track of the name-object pairs
+
+*** Evaluating combinations
+
+General evaluation rule:
+
+1. Evaluate the sub-expressions of the combination
+2. Apply the procedure to the arguments
+
+This evaluation rule is recursive.
+
+- recursive process :: the process that includes the need to invoke itself as one of its steps
+- tree accumulation :: recursive process of evaluating evaluating expressions downward and then accumulating values upward
+- special forms :: expressions that are not executed according to this evaluation rule, like =define=
+
+*** Compound procedures
+
+Some elements of Lisp adhere to the requirements of a programming language
+
+- primitive expressions : numbers and arithmetic operations
+- means of combination : nesting of combinations
+- means of abstraction : definitions
+
+- procedure definition :: method, by which a compound operation can be named and referred to as a unit
+
+Example of procedure definition
+#+BEGIN_SRC scheme
+(define (square x) (* x x))
+#+END_SRC
+
+General form of a procedure definition is
+=(define (<name> <formal parameters>) <body>)=
+
+Defined procedures can be combined too:
+#+BEGIN_SRC scheme
+(define (sum-of-squares x y)
+  (+ (square x) (square y)))
+#+END_SRC
+
+*** The substitution model for procedure application
+
+
