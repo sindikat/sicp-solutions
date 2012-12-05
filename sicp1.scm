@@ -372,6 +372,9 @@
       a
       (gcd1 b (remainder a b))))
 
+;; Exercise 1.20:
+;; * TODO finish
+
 ;; 1.2.6 Example: Testing for Primality
 (define (smallest-divisor n)
   (find-divisor n 2))
@@ -406,6 +409,9 @@
         ((fermat-test n) (fast-prime? n (- times 1)))
         (else false)))
 
+;; Exercise 1.21
+;; trivial
+
 ;; Exercise 1.22
 (define runtime
   current-milliseconds)
@@ -435,6 +441,24 @@
           (search-for-primes (+ number-from 1) prime-count))
       null))
 
+;; > (search-for-primes (expt 10 10) 3)
+;; 10000000019 *** 7
+;; 10000000033 *** 7
+;; 10000000061 *** 7
+;; > (search-for-primes (expt 10 11) 3)
+;; 100000000003 *** 20
+;; 100000000019 *** 15
+;; 100000000057 *** 15
+;; > (search-for-primes (expt 10 12) 3)
+;; 1000000000039 *** 49
+;; 1000000000061 *** 45
+;; 1000000000063 *** 45
+;; > (search-for-primes (expt 10 13) 3)
+;; 10000000000037 *** 154
+;; 10000000000051 *** 140
+;; 10000000000099 *** 139
+;; 154 / 49 ≈ 49 / 20 ≈ 20 / 7 ≈ sqrt(10), Θ(sqrt(n))
+
 ;; Exercise 1.23
 (define (smallest-divisor-adv n)
   (find-divisor-adv n 2))
@@ -455,16 +479,108 @@
   (define (start-prime-test-adv start-time)
     (if (prime?-adv)
         (report-prime n (- (runtime) start-time))
-        #f))
+        false))
   (start-prime-test-adv (runtime)))
 
-;; * TODO finish
+;; * TODO answer to this:
+;; Since this modification halves the number of
+;; test steps, you should expect it to run about twice as fast. Is this
+;; expectation confirmed? If not, what is the observed ratio of the
+;; speeds of the two algorithms, and how do you explain the fact that
+;; it is different from 2?
 
 ;; Exercise 1.24
 
+(define (timed-prime-test-fast n)
+  (define (start-prime-test-fast start-time)
+    (if (fast-prime? n 10000)
+        (report-prime n (- (runtime) start-time))
+        false))
+  (start-prime-test-fast (runtime)))
+
+;; Here instead of giving huge numbers we increase the number to
+;; repeat Fermat's procedure, because (random) accepts only numbers <
+;; 2^{31}. (fast-prime? n 10000) is enough to see the growth.
+
+;; > (begin
+;;    (timed-prime-test-fast 1009)
+;;    (timed-prime-test-fast 1013)
+;;    (timed-prime-test-fast 1019)
+;;    (timed-prime-test-fast 10007)
+;;    (timed-prime-test-fast 10009)
+;;    (timed-prime-test-fast 10037)
+;;    (timed-prime-test-fast 100003)
+;;    (timed-prime-test-fast 100019)
+;;    (timed-prime-test-fast 100043)
+;;    (timed-prime-test-fast 1000003)
+;;    (timed-prime-test-fast 1000033)
+;;    (timed-prime-test-fast 1000037))
+;; 1009 *** 27
+;; 1013 *** 18
+;; 1019 *** 18
+;; 10007 *** 24
+;; 10009 *** 23
+;; 10037 *** 23
+;; 100003 *** 29
+;; 100019 *** 28
+;; 100043 *** 29
+;; 1000003 *** 33
+;; 1000033 *** 33
+;; 1000037 *** 33
+;;
+;; We see that time increases by constant value, when input increases
+;; by the power of 10. This confirms that Fermat's test has Θ(log n)
+;; order of growth. Time for 10⁶ is roughly 2 times the time for 10³.
+
 ;; Exercise 1.25
 
+;; * TODO solve
+
+;; Exercise 1.26
+
+;; * TODO solve
+
+;; Exercise 1.27
+
+(define (carmichael-test n)
+  (define (i a n)
+    (cond ((>= a n) true)
+          ((not (= (expmod a n n) a)) false) ;; what's shorter for (not (= ...)) ?
+          (else (i (add1 a) n))))
+  (i 1 n))
+
+;; > (carmichael-test 1008)
+;; #f
+;; > (carmichael-test 1009)
+;; #t
+;; > (carmichael-test 561)
+;; #t
+;; > (carmichael-test 1105)
+;; #t
+;; > (carmichael-test 1729)
+;; #t
+;; > (carmichael-test 2465)
+;; #t
+;; > (carmichael-test 2821)
+;; #t
+;; > (carmichael-test 6601)
+;; #t
+;;
+;; true for primes and carmichael numbers, false for any other
+
+;; Exercise 1.28
+
+;; * TODO solve (very important)
+
 ;; 1.3 Formulating Abstractions with Higher-Order Procedures
+
+(define (sum term a next b)
+  (if (> a b)
+      0
+      (+ (term a)
+         (sum term (next a) next b))))
+
+(define (identity x) x)
 
 ;; Exercise 1.29
 
@@ -482,26 +598,106 @@
   (/ (* h (iter 0 0)) 3.0))
 
 ;; Exercise 1.30
-(define (sum term a next b)
-  (if (> a b)
-      0
-      (+ (term a)
-	 (sum term (next a) next b))))
 
-;; (define (sum term a next b)
-;;   (define (iter a result)
-;;     (if ??
-;; 	??
-;; 	(iter ?? ??)))
-;;   (iter ?? ??))
+(define (sum-iter term a next b)
+  (define (iter a result)
+    (if (> a b)
+        result
+        (iter (next a) (+ (term a) result))))
+  (iter a 0))
 
 ;; Exercise 1.31
 
+;; a.
+(define (product term a next b)
+  (if (> a b)
+      1
+      (* (term a)
+         (product term (next a) next b))))
+
+(define (factorial n)
+  (product identity 1 add1 n))
+
+(define (pi-approximation)
+  (define approximation 100)
+  (define (next-2 n)
+    (+ 2 n))
+  ;; 2 * 4 / 3 * 3 or 4 * 6 / 5 * 5 etc
+  (define (pi-term n)
+    (/ (* (- n 1) (+ n 1)) (square n)))
+  (* 4 (product pi-term 3.0 next-2 approximation)))
+
+;; b.
+(define (product-iter term a next b)
+  (define (i a result)
+    (if (> a b)
+        result
+        (i (next a) (* (term a) result))))
+  (i a 1))
+
 ;; Exercise 1.32
+
+;; a.
+(define (accumulate combiner null-value term a next b)
+  (if (> a b)
+      null-value
+      (combiner (term a)
+                (accumulate term (next a) next b))))
+
+(define (sum-acc term a next b)
+  (accumulate + 0 term a next b))
+
+(define (product-acc term a next b)
+  (accumulate * 1 term a next b))
+
+;; b.
+(define (accumulate-iter combiner null-value term a next b)
+  (define (i a result)
+    (if (> a b)
+        result
+        (i (next a) (combiner (term a) result))))
+  (i a null-value))
 
 ;; Exercise 1.33
 
-;;...
+(define (filtered-accumulate filter combiner null-value term a next b)
+  (define (i a result)
+    (cond ((> a b) result)
+          ((filter a) (i (next a) (combiner (term a) result)))
+          (else (i (next a) result))))
+  (i a null-value))
+
+;; a.
+(define (sum-of-squares-of-primes a b)
+  (filtered-accumulate prime? + 0 square a add1 b))
+
+;; b.
+(define (product-of-integers-relatively-prime n)
+  (define (relatively-prime? a b)
+    (= (gcd a b) 1))
+  (filtered-accumulate relatively-prime? * 1 identity 1 add1 n))
+
+;; 1.3.2 Constructing procedures using lambda
+
+;; Exercise 1.34
+
+(define (f g)
+  (g 2))
+
+;; (f f) expands to (f 2), which expands to (2 2). There can't be no
+;; procedure called 2, so the interpreter stops with the following
+;; error:
+;; 
+;; procedure application: expected procedure, given: 2; arguments
+;; were: 2
+
+;; 1.3.3 Procedures as general methods
+
+;; Exercise 1.35
+
+
+
+;; Exercise 1.45 ???
 ;;special: generalized root
 (define (genrt-iter guess x n)
   (if (genrt-good-guess? guess x n)
